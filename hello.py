@@ -14,7 +14,6 @@ def create_app():
 	gethighscore()
 	return app
 
-@atexit
 def savehighscore():
 	highscore = open('highscore','w')
 	highscore.write(app.g[2])
