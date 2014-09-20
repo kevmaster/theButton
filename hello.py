@@ -14,9 +14,11 @@ def create_app():
 	gethighscore()
 	return app
 
+app = create_app()
+
 def savehighscore():
 	highscore = open('highscore','w')
-	highscore.write(app.g[2])
+	highscore.write(str(app.g[2]))
 	return
 
 @app.route("/timer", methods=['GET'])
@@ -27,6 +29,7 @@ def timer():
 
 @app.route("/push", methods = ['POST'])
 def push():
+	print 'pusing button'
 	if app.g[0]==0:
 		app.g[1] = time.time()
 	app.g[0] = app.g[0] + 1
@@ -34,10 +37,12 @@ def push():
 
 @app.route("/release", methods = ['POST'])
 def release():
+	number = int(time.time()-app.g[1])
+	print 'releasing button with current score: '+str(number)+' and old highscore: '+str(app.g[2])
 	app.g[0] = app.g[0] - 1
 	if app.g[0]==0:
-		number = time.time()-app.g[1]
-		if number>app.g[2]:
+		if int(number)-int(app.g[2])>=0:
+			print 'current score is higher than highscore'
 			app.g[2]=number
 			savehighscore()
 		app.g[1] = time.time()
@@ -49,10 +54,10 @@ def stack():
 
 @app.route("/highscore", methods = ['GET'])
 def highscore():
-	return str(int(app.g[2]))
+	return str(app.g[2])
 
 if __name__ == "__main__":
 #	app.g = [0,0,0]
-	app = create_app()
+#	app = create_app()
 	app.debug = True
 	app.run(host = '0.0.0.0', debug= True)
