@@ -25,6 +25,10 @@ def release():
 		app.g[1] = time.time()
 	return str(app.g[0])
 
+@app.route("/stack", methods = ['POST'])
+def stack():
+	return str(app.g[0])
+
 if __name__ == "__main__":
 	app.g = [0,0]
 	app.debug = True
