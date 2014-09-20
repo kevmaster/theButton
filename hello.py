@@ -3,28 +3,28 @@ import time
 app = Flask(__name__)
 
 #def main():
-stack = []
+stack = 0
 #app.g = 0
 
 @app.route("/timer", methods=['GET'])
 def timer():
-	if len(stack) == 0:
+	if stack == 0:
 		app.g = time.time()
 	return str(int(time.time() - app.g))
 
 @app.route("/push", methods = ['POST'])
 def push():
-	if len(stack)==0:
+	if stack==0:
 		app.g = time.time()
-	stack.append('x')
-	return str([timer(),len(stack)])
+	stack = stack + 1
+	return timer()
 
 @app.route("/release", methods = ['POST'])
 def release():
-	stack.pop()
-	if len(stack)==0:
+	stack = stack - 1
+	if stack==0:
 		app.g = time.time()
-	return str([timer(),len(stack)])
+	return str(stack)
 
 if __name__ == "__main__":
 	app.g = 0
