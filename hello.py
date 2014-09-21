@@ -62,10 +62,11 @@ def addrelease(ip):
 	for x in app.g[3]:
 		if x[0] == ip:
 			x[2] = x[2]+1
-			diff = int(time.time() - app.g[4][ip])
-			removelastpress(ip)
-			if diff>x[3]:
-				x[3] = diff
+			if ip in app.g[4]:
+				diff = int(time.time() - app.g[4][ip])
+				removelastpress(ip)
+				if diff>x[3]:
+					x[3] = diff
 			savedb()
 			return
 	app.g[3].append([ip,1,0,0])
