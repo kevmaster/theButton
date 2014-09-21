@@ -5,7 +5,7 @@ import json
 #runs at startup, sets up the server and variables
 def create_app():
 	app = Flask(__name__)
-	app.g = [0,0,0,[]]
+	app.g = [0,0,0,[],{}]
 	def gethighscore():
 		highscore = open('highscore','r')
 		highscore = highscore.read()
@@ -22,6 +22,7 @@ def create_app():
 #app.g[1] is timer variable (last time button wasn't pushed)
 #app.g[2] is current high score
 #app.g[3] is database of IPs and number of button presses
+#app.g[4] is a map of IPs and last pressed times
 
 app = create_app()
 
@@ -32,19 +33,28 @@ def savehighscore():
 	highscore.close()
 	return
 
+def addlastpress(ip):
+	app.g[4][ip]=time.time()
+	return
+
+def removelastpress(ip):
+	del app.g[4][ip]
+	return
 
 def savedb():
 	db = open('ips','w')
 	json.dump(app.g[3],db)
 	db.close()
+	return
 
 def addpush(ip):
+	addlastpress(ip)
 	for x in app.g[3]:
 		if x[0] == ip:
 			x[1] = x[1]+1
 			savedb()
 			return
-	app.g[3].append([ip,1,0])
+	app.g[3].append([ip,1,0,0])
 	savedb()
 	return
 
@@ -52,11 +62,22 @@ def addrelease(ip):
 	for x in app.g[3]:
 		if x[0] == ip:
 			x[2] = x[2]+1
+			diff = int(time.time() - app.g[4][ip])
+			removelastpress(ip)
+			if diff>x[3]:
+				x[3] = diff
 			savedb()
 			return
-	app.g[3].append([ip,1,0])
+	app.g[3].append([ip,1,0,0])
 	savedb()
 	return
+
+@app.route("/personal", methods=['GET'])
+def personal():
+	for x in app.g[3]:
+		if x[0] == request.remote_addr:
+			return str(x[3])
+	return '0'
 
 #returns the current timer time
 @app.route("/timer", methods=['GET'])
